@@ -1,0 +1,319 @@
+{% extends './index.html' %}
+
+{% block head %}
+    <style>
+        .img-box{
+            position: relative;
+        }
+        .img-big{
+            position: absolute;
+            top:220px;
+            left:550px;
+            /*border: 2px dashed firebrick;*/
+            width:450px;
+            height:450px;
+            overflow: hidden;
+            display: none;
+            z-index:1000;
+            background-color: white;
+        }
+        .goods_detail_con .img-box .float{
+            position: absolute;
+            top:0;
+            left:0;
+            background-color: #dddddd;
+            opacity:0.5;
+            width:160px;
+            height:160px;
+            display: none;
+        }
+        .img-big img{
+            position: absolute;
+            top:0;
+            left:0;
+            width:800px;
+            height:800px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+
+	<div class="navbar_con">
+		<div class="navbar clearfix">
+			<div class="subnav_con fl">
+				<h1 onclick="product_list()">全部商品分类</h1>
+				<span></span>			
+				<ul style="z-index: 100;" class="subnav">
+					<li><a href="#" class="fruit">新鲜水果</a></li>
+					<li><a href="#" class="seafood">海鲜水产</a></li>
+					<li><a href="#" class="meet">猪牛羊肉</a></li>
+					<li><a href="#" class="egg">禽类蛋品</a></li>
+					<li><a href="#" class="vegetables">新鲜蔬菜</a></li>
+					<li><a href="#" class="ice">速冻食品</a></li>
+				</ul>
+			</div>
+			<ul class="navlist fl">
+				<li><a href="/index/">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="">手机生鲜</a></li>
+				<li class="interval">|</li>
+				<li><a href="">抽奖</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="breadcrumb">
+		<a href="#">全部分类</a>
+		<span>></span>
+		<a href="#">新鲜水果</a>
+		<span>></span>
+		<a href="#">商品详情</a>
+	</div>
+
+	<div class="goods_detail_con clearfix">
+		<div class="goods_detail_pic fl img-box">
+            <img style="width: 350px;height: 350px;border: 1px solid lightgrey" src="/static/{{ good.icon_url }}">
+            <div class="float"></div>
+        </div>
+        <div class="img-big">
+            <img src="/static/{{ good.icon_url }}"/>
+        </div>
+{#iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii#}
+		<div class="goods_detail_list fr">
+			<h3>{{ good.title }}</h3>
+			<p>{{ good.description }}。</p>
+			<div class="prize_bar">
+				<span class="show_pirze">¥<em>{{ good.price }}</em></span>
+				<span class="show_unit">单  位：{{ good.standard }}</span>
+			</div>
+			<div class="goods_num clearfix">
+				<div class="num_name fl">数 量：</div>
+
+				<div class="num_add fl">
+					<input type="text" class="num_show fl" value="1" onblur="lose_blur(this)">
+					<a href="javascript:;" class="add fr" onclick="add_product();">+</a>
+					<a href="javascript:;" class="minus fr" onclick="reduce_product();">-</a>
+				</div>
+                <div class=" fl" style="margin-left: 139px;line-height: 54px;">库 存：<em style="font-size: 15px;color: orangered;">{{ good.stock }} </em>件</div>
+			</div>
+			<div class="total">总价：<em>{{ good.price }}元</em></div>
+			<div class="operate_btn">
+				<a href="/payOrder/{{ good.id }}/1/" class="buy_btn">立即购买</a>
+				<a href="javascript:;" class="add_cart" id="add_cart" onclick="add_cart({{ good.id }});">加入购物车</a>
+			</div>
+		</div>
+	</div>
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul>
+                    {% for item in new %}
+                        <li>
+                            <a href="/product/detail/{{ item.id }}"><img src="/static/{{ item.icon_url }}"></a>
+                            <h4><a href="/product/detail/{{ item.id }}">{{ item.title }}</a></h4>
+                            <div class="prize">￥{{ item.price }}</div>
+                        </li>
+                    {% endfor %}
+
+				</ul>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix">
+			<ul class="detail_tab clearfix">
+				<li class="active" onclick="detail_click(this);">商品介绍</li>
+				<li onclick="conment_click(this);">评论</li>
+			</ul>
+
+			<div class="tab_content">
+				<dl>
+					<dt class="title-tab">商品详情：</dt>
+					<dd class="content-tab">{{ good.detail|safe }}</dd>
+				</dl>
+			</div>
+            <div class="tab_conment" style="display: none;">
+				<dl>
+					<dt class="title-tab">商品评论：</dt>
+					<dd class="content-tab">
+                        {% for item in cmts %}
+                            {{ item.uid__uname }}:{{ item.content }}。
+                            {{ item.r_time|date:'Y-m-d  / r/' }}
+                            <br>
+                            <hr>
+                        {% endfor %}
+                    </dd>
+				</dl>
+			</div>
+
+		</div>
+	</div>
+    <div class="add_jump"></div>
+
+{% endblock %}
+	{% block js %}
+	<script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript">
+        function add_cart(id) {
+            if($('.login_btn').children('a').first().text() == '登录'){
+                alert('请先登录在操作。')
+                return
+            }
+
+            $(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'});
+			$(".add_jump").stop().animate({
+				'left': $to_y+7,
+				'top': $to_x+7},
+				"fast", function() {
+					$(".add_jump").fadeOut('fast',function(){
+
+					});
+
+			});
+
+            var count = $('.num_show').val();
+            $.get('/product/add2cart/'+id+'/'+count+'/', function (data) {
+{#                console.log(data);#}
+                $('#show_count').text(data.count)
+            })
+        }
+        function conment_click(ths) {
+            $(ths).addClass('active');
+            $(ths).siblings().removeClass('active');
+            $('.tab_conment').show();
+            $('.tab_content').hide();
+        }
+        function detail_click(ths) {
+            $(ths).addClass('active');
+            $(ths).siblings().removeClass('active');
+            $('.tab_conment').hide();
+            $('.tab_content').show();
+        }
+        function reduce_product() {
+            if(parseInt($('.num_show').val()) > 1){
+                var num = parseInt($('.num_show').val())-1;
+                $('.num_show').val(num);
+                var count = (parseFloat($('.num_show').val()) * parseFloat({{ good.price }})).toFixed(2);
+                $('.total em').text(String(count)+'元');
+
+                var buy_link = $('.buy_btn').attr('href');
+                var link_list = buy_link.split('/');
+                link_list[link_list.length - 2] = num;
+                buy_link = link_list.join('/') ;
+                console.log(buy_link, '--', link_list[link_list.length - 2]);
+                $('.buy_btn').attr('href', buy_link);
+            }
+        }
+        function add_product() {
+            var num = parseInt($('.num_show').val())+1;
+            $('.num_show').val(num);
+            var count = (parseFloat($('.num_show').val()) * parseFloat({{ good.price }})).toFixed(2);
+            $('.total em').text(String(count)+'元');
+
+            var buy_link = $('.buy_btn').attr('href');
+            var link_list = buy_link.split('/');
+            console.log(buy_link, '--', link_list[link_list.length - 2]);
+            link_list[link_list.length - 2] = num;
+            buy_link = link_list.join('/') ;
+            $('.buy_btn').attr('href', buy_link);
+        }
+        function lose_blur(ths) {
+            if(parseInt($('.num_show').val()) > 1){
+                var count = (parseFloat($('.num_show').val()) * parseFloat({{ good.price }})).toFixed(2);
+                $('.total em').text(String(count)+'元');
+
+                var buy_link = $('.buy_btn').attr('href');
+                var link_list = buy_link.split('/');
+                link_list[link_list.length - 2] = $('.num_show').val();
+                buy_link = link_list.join('/') ;
+                console.log(buy_link, '--', link_list[link_list.length - 2]);
+                $('.buy_btn').attr('href', buy_link);
+            }else {
+                alert('请输入大于0的数字')
+            }
+        }
+
+        function product_list() {
+            location.href = '/product/list-1-0-1'
+        }
+
+		var $add_x = $('#add_cart').offset().top;
+		var $add_y = $('#add_cart').offset().left;
+
+		var $to_x = $('#show_count').offset().top;
+		var $to_y = $('#show_count').offset().left;
+
+{#		$(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'});#}
+{#		$('#add_cart').click(function(){#}
+{#		    $(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'});#}
+{#			$(".add_jump").stop().animate({#}
+{#				'left': $to_y+7,#}
+{#				'top': $to_x+7},#}
+{#				"fast", function() {#}
+{#					$(".add_jump").fadeOut('fast',function(){#}
+{#						$('#show_count').text(2);#}
+{#					});#}
+{##}
+{#			});#}
+{#		});#}
+
+
+    $('.img-box').mouseover(function () {
+        $('.img-box .float').css('display', 'block');
+        $('.img-big').css('display', 'block');
+    })
+    $('.img-box').mouseout(function () {
+        $('.img-box .float').css('display', 'none');
+        $('.img-big').css('display', 'none');
+    })
+
+    $('.img-box').mousemove(function (e) {
+        var event = e || window.event;
+
+        var mouse_x = event.pageX - 140;
+        var mouse_y = event.pageY - 240;
+        console.log(mouse_x ,mouse_y, '======');
+
+        console.log(event.x, '1', event.y);
+        console.log(event.clientX, 'client', event.clientY);
+        console.log(event.offsetX, 'offset', event.offsetY);
+        console.log(event.pageX, 'page', event.pageY);
+
+        var float_width = $('.float').width();
+        var float_hieght = $('.float').height();
+        var float_width_half = $('.float').width() / 2;
+        var float_hieght_half = $('.float').height() / 2;
+
+        //以float移动模块为左上角为视角，那么移动的范围只能在横坐标>0 到420 - float_width以及纵坐标>0到420-float_height的范围。
+        var float_x = mouse_x - float_width_half;
+        var float_y = mouse_y - float_hieght_half;
+
+        if(float_x < 0){
+            float_x = 0;
+        }else if (float_x > 350 - float_width){
+            float_x = 350 - float_width;
+        }
+
+        if(float_y < 0){
+            float_y = 0;
+        }else if (float_y > 350 - float_width){
+            float_y = 350 - float_width;
+        }
+
+        float_move(float_x, float_y);
+
+    });
+    function float_move(X, Y) {
+
+        $('.float').css('top', Y + 'px').css('left', X + 'px');
+
+        rate = 800 / 350;
+        left_w = -(X * rate);
+        top_h = -(Y * rate);
+
+
+        $('.img-big img').css('left', left_w + 'px').css('top', top_h + 'px');
+    }
+	</script>
+	
+{% endblock %}

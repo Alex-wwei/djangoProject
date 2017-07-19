@@ -1,0 +1,75 @@
+{% extends '../base_footer.html' %}
+
+{% block header %}
+    <link rel="stylesheet" type="text/css" href="/static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.5/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.5/themes/icon.css">
+    <script type="text/javascript" src="/static/jquery-easyui-1.5/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/jquery-easyui-1.5/jquery.easyui.min.js"></script>
+{% endblock %}
+
+{% block body %}
+    <div class="register_con">
+        <div class="l_con fl">
+            <a class="reg_logo" href="/index/"><img src="/static/images/logo02.png"></a>
+            <div class="reg_slogan">足不出户  ·  新鲜每一天</div>
+            <div class="reg_banner"></div>
+        </div>
+
+        <div class="r_con fr">
+            <div class="reg_title clearfix">
+                <h1>用户注册</h1>
+                <a href="/user/login/">登录</a>
+            </div>
+            <div class="reg_form clearfix">
+                <form class="form-regist" action="/user/regist_handler/" method="post">
+                    {% csrf_token %}
+                    <ul>
+                        <li>
+                            <label>用户名:</label>
+                            <input type="text" name="user_name" id="user_name">
+                            <span class="error_tip">提示信息</span>
+                        </li>
+                        <li>
+                            <label>密码:</label>
+                            <input type="password" name="pwd" id="pwd">
+                            <span class="error_tip">提示信息</span>
+                        </li>
+                        <li>
+                            <label>确认密码:</label>
+                            <input type="password" name="cpwd" id="cpwd">
+                            <span class="error_tip">提示信息</span>
+                        </li>
+                        <li>
+                            <label>邮箱:</label>
+                            <input type="text" name="email" id="email">
+                            <span class="error_tip">提示信息</span>
+                        </li>
+                        <li class="agreement">
+                            <input type="checkbox" name="allow" id="allow" checked="checked">
+                            <label style="font-size: 13px;">同意”<a style="font-size: 12px;color: #369;font-style: italic" href="#">天天生鲜用户使用协议</a>“</label>
+                            <span class="error_tip2">提示信息</span>
+                        </li>
+                        <li class="reg_sub" id="reg_sub">
+                            <input id="sub-button" type="submit" value="注 册">
+                        </li>
+                    </ul>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+{#    <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>#}
+    <script type="text/javascript" src="/static/js/register.js"></script>
+    <script>
+{#        $(function () {#}
+{#            $('#sub-button').submit(function () {#}
+{#                alert('submit')#}
+{#            })#}
+{#        })#}
+
+    </script>
+{% endblock %}

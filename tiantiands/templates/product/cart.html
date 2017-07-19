@@ -1,0 +1,258 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>天天生鲜-{{ title }}</title>
+	<link rel="stylesheet" type="text/css" href="/static/css/reset.css">
+	<link rel="stylesheet" type="text/css" href="/static/css/main.css">
+</head>
+<body>
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div class="fr">
+                {% if user %}
+				<div class="login_btn fl">
+					欢迎您：<em style="color: #ff8800;">{{ user.uname }}</em>
+                    <span>|</span>
+					<a href="/user/logout/">退出</a>
+				</div>
+                {% else %}
+				<div class="login_btn fl">
+					<a href="/user/login/">登录</a>
+					<span>|</span>
+					<a href="/user/regist/">注册</a>
+				</div>
+                {% endif %}
+
+				<div class="user_link fl">
+					<span>|</span>
+					<a href="/user/usercenter/">用户中心</a>
+					<span>|</span>
+					<a href="/product/cart/">我的购物车</a>
+					<span>|</span>
+					<a href="/product/centerOrder/">我的订单</a>
+				</div>
+			</div>
+		</div>		
+	</div>
+
+	<div class="search_bar clearfix">
+		<a href="/index/" class="logo fl"><img src="/static/images/logo.png"></a>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;{{ title }}</div>
+		<div class="search_con fr">
+			<form method='get' action="/search/" target="_blank">
+                <input type="text" class="input_text fl" name="" placeholder="搜索商品">
+                <input type="submit" class="input_btn fr" name="" value="搜索">
+            </form>
+		</div>		
+	</div>
+
+    {% block content %}
+	<div class="total_count">全部商品<em id="title_count">{{ goods.count }}</em>件</div>
+	<ul class="cart_list_th clearfix">
+		<li class="col01">商品名称</li>
+		<li class="col02">商品单位</li>
+		<li class="col03">商品价格</li>
+		<li class="col04">数量</li>
+		<li class="col05">小计</li>
+		<li class="col06">操作</li>
+	</ul>
+        {% for item in goods %}
+            <ul class="cart_list_td clearfix" >
+                <li class="col01"><input type="checkbox" name="" checked></li>
+                <li class="col02"><a href="/product/detail/{{ item.pid.id }}"><img src="/static/{{ item.pid.icon_url }}"></a></li>
+                <li class="col03">{{ item.pid.title }}<br><em>{{ item.pid.price }}元/{{ item.pid.standard }}</em></li>
+                <li class="col04">{{ item.pid.standard }}</li>
+                <li class="col05">{{ item.pid.price }}元</li>
+                <li class="col06">
+                    <div class="num_add">
+                        <a href="javascript:;" class="add fl" onclick="reduce_product(this);">-</a>
+                        <input type="text" name="{{ item.pid.id }}" class="num_show fl" value="{{ item.count }}">
+                        <a href="javascript:;" class="minus fl" onclick="add_product(this);">+</a>
+                    </div>
+                </li>
+                <li class="col07">元</li>
+                <li class="col08"><a href="javascript:;" name="{{ item.pid.id }}">删除</a></li>
+            </ul>
+        {% endfor %}
+	<ul class="settlements">
+		<li class="col01"><input id="check_all" type="checkbox" name="" checked=""></li>
+		<li class="col02">全选</li>
+		<li class="col03">合计(不含运费)：<span>¥</span><em id="total_price"></em><br>共选中<b id="total_count">{{ goods.count }}</b>件商品</li>
+		<li class="col04"><a href="javascript:;" onclick="submitOrder();">去结算</a></li>
+	</ul>
+
+    {% endblock %}
+	<div class="footer">
+		<div class="foot_link">
+			<a href="#">关于我们</a>
+			<span>|</span>
+			<a href="#">联系我们</a>
+			<span>|</span>
+			<a href="#">招聘人才</a>
+			<span>|</span>
+			<a href="#">友情链接</a>		
+		</div>
+		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：010-****888    京ICP备*******8号</p>
+	</div>
+
+{% block js %}
+    <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+<script>
+
+    good_ids = [];
+
+    $(function () {
+        totalPrice();
+    });
+
+    function totalPrice() {
+        good_ids.splice(0, good_ids.length);
+        var total = 0;
+        var totalcount = 0;
+        var title_count = 0;
+        $('.col07').each(function () {
+            var price = $(this).prev().prev().text();
+            var count = $(this).prev().find('input').val();
+            var line_price = parseFloat(price) * parseFloat(count);
+            $(this).text(String(line_price.toFixed(2)) + '元');
+
+            title_count += 1;
+            if($(this).siblings('.col01').find('input').prop('checked')){
+                totalcount += 1;
+                total += line_price;
+
+                var gid = $(this).prev().find('input').attr('name');
+                if(good_ids.indexOf(gid) != -1){
+                    console.log(good_ids, gid, good_ids.indexOf(gid))
+                }else {
+                    good_ids.push(gid);
+                    console.log(good_ids)
+                }
+            }
+        });
+
+        $('#total_price').text(total.toFixed(2));
+        $('#total_count').text(totalcount);
+        $('#title_count').text(title_count)
+    }
+
+    function submitOrder() {
+        if(good_ids.length == 0){
+            alert('请选中商品后提交。');
+            return
+        }
+        good_ids.push($('#total_price').text());
+        console.log(good_ids.length);
+        var goods = good_ids.join('-');
+        console.log(goods);
+
+        location.href = '/product/payorder/?gids='+goods+'';
+{#        location.href = encodeURIComponent('/product/payorder/?p=1$\&p1=3');#}
+{#        $.ajax({#}
+{#            url:'/product/payorder/',#}
+{#            type:'post',#}
+{#            data:{'gids':goods},#}
+{#            success:function (data) {#}
+{#                console.log(data)#}
+{#            }#}
+{#        })#}
+    }
+
+    $('.col08').click(function () {
+        if(confirm('你确定要删除这件商品吗？')){
+            var pid = $(this).find('a').attr('name');
+            $(this).parent().remove();
+            totalPrice();
+            console.log(pid, this);
+            $.ajax({
+                url:'/product/delcart/'+pid+'/',
+                type:'get',
+                success:function (data) {
+                    if (data.state){
+
+                    }else {
+                        console.log(data.error)
+                    }
+                }
+            })
+        }
+    });
+
+    $('#check_all').click(function () {
+        var state = $(this).prop('checked');
+        console.log(state);
+        if(state == false){
+            good_ids.splice(0, good_ids.length)
+        }
+        $(':checkbox:not(#check_all)').prop('checked', state);
+        totalPrice();
+
+    });
+    $(':checkbox:not(#check_all)').click(function () {
+        if($(this).prop('checked')){
+            if($(':checked').length+1 == $(':checkbox').length){
+                $('#check_all').prop('checked', true)
+            }
+        }else {
+            $('#check_all').prop('checked', false)
+        }
+        totalPrice();
+    });
+
+    function reduce_product(ths) {
+            if(parseInt($(ths).next().val()) > 1){
+                var num = parseInt($(ths).next().val())-1;
+                $(ths).next().val(num);
+
+                totalPrice();
+                var pid = $(ths).next().attr('name');
+                $.get('/product/editcart/'+pid+'/'+num+'/', function (data) {
+                    if(data.status){
+
+                    }else {
+                        console.log(data.error)
+                    }
+                })
+            }
+        }
+        function add_product(ths) {
+            var num = parseInt($(ths).prev().val())+1;
+            $(ths).prev().val(num);
+            totalPrice();
+
+            var pid = $(ths).prev().attr('name');
+            $.get('/product/editcart/'+pid+'/'+num+'/', function (data) {
+                if(data.status){
+
+                }else {
+                    console.log(data.error)
+                }
+            })
+        }
+        $('.num_show').blur(function () {
+            if(parseInt($(this).val()) > 1){
+                var num = $(this).val();
+                var pid = $(ths).attr('name');
+                $.get('/product/editcart/'+pid+'/'+num+'/', function (data) {
+                    if(data.status){
+
+                    }else {
+                        console.log(data.error)
+                    }
+                });
+
+                totalPrice()
+            }else {
+                alert('请输入大于0的数字');
+            }
+        });
+
+
+</script>
+{% endblock %}
+	
+</body>
+</html>

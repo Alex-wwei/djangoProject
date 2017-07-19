@@ -1,0 +1,68 @@
+
+{% extends '../product/index.html' %}
+
+{% block content %}
+    <div class="main_wrap clearfix">
+
+{#		<div class="r_wrap fr clearfix">#}
+    	<div class="navbar_con">
+		<div class="navbar clearfix">
+			<div class="subnav_con fl">
+				<h1>全部商品分类</h1>
+				<span></span>
+				<ul class="subnav">
+					<li><a href="/product/list-1-0" class="fruit">新鲜水果</a></li>
+					<li><a href="/product/list-2-0" class="seafood">海鲜水产</a></li>
+					<li><a href="/product/list-3-0" class="meet">猪牛羊肉</a></li>
+					<li><a href="/product/list-4-0" class="egg">禽类蛋品</a></li>
+					<li><a href="/product/list-5-0" class="vegetables">新鲜蔬菜</a></li>
+					<li><a href="/product/list-6-0" class="ice">速冻食品</a></li>
+				</ul>
+			</div>
+			<ul class="navlist fl">
+				<li><a href="/index/">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="">手机生鲜</a></li>
+				<li class="interval">|</li>
+				<li><a href="">抽奖</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="breadcrumb">
+		<a href="/product/list-1-0-1">全部分类</a>
+		<span>></span>
+		<a >新鲜水果</a>
+	</div>
+
+    <ul class="goods_type_list clearfix">
+
+                {% if query %}
+                    {% for result in page.object_list %}
+                        <li>
+                            <a href="/product/detail/{{ result.object.id }}"><img src="/static/{{ result.object.icon_url }}"></a>
+                            <h4><a href="/product/detail/{{ result.object.id }}">{{ result.object.title }}</a></h4>
+                            <div class="operate">
+                                <span class="prize">￥{{ result.object.price }}</span>
+                                <span class="unit">{{ result.object.price }}/{{ item.standard }}</span>
+                                <a href="/product/add2cart/{{ result.object.id }}/1/" name="{{ result.object.id }}" class="add_goods" title="加入购物车"></a>
+                            </div>
+                        </li>
+{#                        <a href="/{{ result.object.id }}/">{{ result.object.title }}</a><br/>#}
+                    {% empty %}
+                        <p>啥也没找到</p>
+                    {% endfor %}
+
+                    {% if page.has_previous or page.has_next %}
+                        <div>
+                            {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; 上一页{% if page.has_previous %}</a>{% endif %}
+                            |
+                            {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}下一页 &raquo;{% if page.has_next %}</a>{% endif %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+    </ul>
+{#        </div>#}
+    </div>
+{% endblock %}
